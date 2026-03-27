@@ -37,7 +37,7 @@ export default function Login() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="glass-panel"
+                className="card"
                 style={{ width: '100%', maxWidth: '400px', padding: '32px' }}
             >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '32px' }}>

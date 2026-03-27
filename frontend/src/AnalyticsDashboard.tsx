@@ -44,48 +44,48 @@ export default function AnalyticsDashboard() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="glass-panel"
+                        className="card"
                         style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}
                     >
                         <div style={{ background: kpi.bg, padding: '16px', borderRadius: '16px' }}>
                             {kpi.icon}
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '4px' }}>{kpi.title}</div>
-                            <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{kpi.value}</div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 500 }}>{kpi.title}</div>
+                            <div style={{ fontSize: '1.75rem', fontWeight: 600 }}>{kpi.value}</div>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Charts Section */}
-            <div className="glass-panel" style={{ padding: '32px' }}>
+            <div className="card" style={{ padding: '32px' }}>
                 <h3 style={{ marginBottom: '24px', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <BarChart3 size={20} color="var(--primary)" />
                     Order Distribution by Status
                 </h3>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {Object.entries(data.statusCounts).map(([status, count]) => {
                         const percentage = (count / maxStatusCount) * 100;
 
-                        let barColor = 'var(--status-planned-border)';
-                        if (status === 'In Progress') barColor = 'var(--status-inprogress-border)';
-                        if (status === 'On Hold') barColor = 'var(--status-onhold-border)';
-                        if (status === 'Completed') barColor = 'var(--status-completed-border)';
+                        let textColor = 'var(--status-planned-text)';
+                        if (status === 'In Progress') { textColor = 'var(--status-inprogress-text)'; }
+                        if (status === 'On Hold') { textColor = 'var(--status-onhold-text)'; }
+                        if (status === 'Completed') { textColor = 'var(--status-completed-text)'; }
 
                         return (
                             <div key={status}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.875rem' }}>
                                     <span style={{ fontWeight: 500 }}>{status}</span>
                                     <span style={{ color: 'var(--text-muted)' }}>{count} Orders</span>
                                 </div>
-                                <div style={{ background: 'rgba(255, 255, 255, 0.05)', height: '12px', borderRadius: '6px', overflow: 'hidden' }}>
+                                <div style={{ background: 'var(--bg-button)', height: '10px', borderRadius: '5px', overflow: 'hidden' }}>
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${percentage}%` }}
                                         transition={{ duration: 1, ease: "easeOut" }}
-                                        style={{ background: barColor, height: '100%', borderRadius: '6px' }}
+                                        style={{ background: textColor, height: '100%', borderRadius: '5px' }}
                                     />
                                 </div>
                             </div>

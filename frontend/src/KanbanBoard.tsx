@@ -81,104 +81,103 @@ export default function KanbanBoard() {
         <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 32px 0 32px' }}>
                 <div>
-                    <h2 style={{ fontSize: '1.5rem' }}>Production Floor</h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Manage and track manufacturing orders.</p>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '4px' }}>Production Board</h2>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Track manufacturing orders in real-time.</p>
                 </div>
 
                 {isSupervisor && (
-                    <button className="btn" onClick={() => setShowCreateModal(true)}>
-                        <Plus size={18} /> New Order
+                    <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+                        <Plus size={16} /> New Order
                     </button>
                 )}
             </div>
 
             <div className="kanban-container">
-                {COLUMNS.map(column => (
-                    <div key={column} className="kanban-column">
-                        <div className={`column-header col-header-${column.replace(' ', '').toLowerCase()}`}>
-                            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>{column}</h3>
-                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem' }}>
-                                {orders.filter(o => o.status === column).length}
+                {COLUMNS.map(column => {
+                    const columnClass = column.replace(' ', '').toLowerCase();
+                    return (
+                        <div key={column} className="kanban-column">
+                            <div className="column-header">
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    <span className={`status-dot dot-${columnClass}`} />
+                                    <h3>{column}</h3>
+                                </div>
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500 }}>
+                                    {orders.filter(o => o.status === column).length}
+                                </span>
+                            </div>
+
+                            <div className="kanban-scroll">
+                                <AnimatePresence>
+                                    {orders.filter(o => o.status === column).map(order => (
+                                        <motion.div
+                                            key={order._id}
+                                            layoutId={order._id}
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.98 }}
+                                            className="kanban-card"
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <span className={`badge badge-${order.priority.toLowerCase()}`}>
+                                                    {order.priority}
+                                                </span>
+                                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 500 }}>{order.workStation}</span>
+                                            </div>
+
+                                            <h4 className="card-title">{order.productName}</h4>
+
+                                            <div className="card-details">
+                                                <span>QTY: {order.quantity}</span>
+                                                {order.assignedTo && <span>Assignee: {order.assignedTo}</span>}
+                                                {order.startTime && <span>Started: {new Date(order.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
+                                            </div>
+
+                                            <div className="card-actions">
+                                                {VALID_TRANSITIONS[order.status]?.map(nextStatus => (
+                                                    <button
+                                                        key={nextStatus}
+                                                        className="btn"
+                                                        style={{ padding: '6px 10px', fontSize: '0.75rem', flex: 1 }}
+                                                        onClick={() => handleStatusChange(order._id, order.status, nextStatus)}
+                                                    >
+                                                        {nextStatus === 'In Progress' && <PlayCircle size={12} style={{ color: 'var(--status-inprogress-text)' }} />}
+                                                        {nextStatus === 'On Hold' && <AlertCircle size={12} style={{ color: 'var(--status-onhold-text)' }} />}
+                                                        {nextStatus === 'Completed' && <CheckCircle2 size={12} style={{ color: 'var(--status-completed-text)' }} />}
+                                                        {nextStatus}
+                                                    </button>
+                                                ))}
+                                                {order.status === 'Completed' && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--status-completed-text)', fontWeight: 500 }}>
+                                                        <Lock size={12} /> Finalized
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         </div>
-
-                        <AnimatePresence>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                {orders.filter(o => o.status === column).map(order => (
-                                    <motion.div
-                                        key={order._id}
-                                        layoutId={order._id}
-                                        initial={{ opacity: 0, scale: 0.95 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        className={`kanban-card card-${column.replace(' ', '').toLowerCase()}`}
-                                    >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                            <span className={`badge badge-${order.priority.toLowerCase()}`}>{order.priority}</span>
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{order.workStation}</span>
-                                        </div>
-
-                                        <h4 className="card-title">{order.productName}</h4>
-
-                                        <div className="card-details">
-                                            <span>QTY: {order.quantity}</span>
-                                            {order.assignedTo && <span>Assignee: {order.assignedTo}</span>}
-                                            {order.startTime && <span>Started: {new Date(order.startTime).toLocaleTimeString()}</span>}
-                                        </div>
-
-                                        <div className="card-actions">
-                                            {VALID_TRANSITIONS[order.status]?.map(nextStatus => (
-                                                <button
-                                                    key={nextStatus}
-                                                    className="btn-secondary"
-                                                    style={{
-                                                        padding: '6px 12px',
-                                                        fontSize: '0.8rem',
-                                                        borderRadius: '6px',
-                                                        cursor: 'pointer',
-                                                        color: 'var(--text-main)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px'
-                                                    }}
-                                                    onClick={() => handleStatusChange(order._id, order.status, nextStatus)}
-                                                >
-                                                    {nextStatus === 'In Progress' && <PlayCircle size={14} color="var(--status-inprogress-border)" />}
-                                                    {nextStatus === 'On Hold' && <AlertCircle size={14} color="var(--status-onhold-border)" />}
-                                                    {nextStatus === 'Completed' && <CheckCircle2 size={14} color="var(--status-completed-border)" />}
-                                                    Move to {nextStatus}
-                                                </button>
-                                            ))}
-                                            {order.status === 'Completed' && (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--status-completed-border)' }}>
-                                                    <Lock size={14} /> Finalized
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </AnimatePresence>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {showCreateModal && isSupervisor && (
-                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel" style={{ padding: '32px', width: '100%', maxWidth: '500px' }}>
-                        <h2 style={{ marginBottom: '24px' }}>Create New Order</h2>
+                <div className="modal-backdrop">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="modal">
+                        <h2 style={{ marginBottom: '24px', fontSize: '1.25rem' }}>Create Order</h2>
                         <form onSubmit={handleCreateOrder} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div>
-                                <label>Product Name</label>
-                                <input required value={newOrder.productName} onChange={e => setNewOrder({ ...newOrder, productName: e.target.value })} />
+                                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Product Name</label>
+                                <input required value={newOrder.productName} onChange={e => setNewOrder({ ...newOrder, productName: e.target.value })} placeholder="e.g. Widget A" />
                             </div>
                             <div style={{ display: 'flex', gap: '16px' }}>
                                 <div style={{ flex: 1 }}>
-                                    <label>Quantity</label>
-                                    <input type="number" required value={newOrder.quantity} onChange={e => setNewOrder({ ...newOrder, quantity: e.target.value })} />
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Quantity</label>
+                                    <input type="number" required value={newOrder.quantity} onChange={e => setNewOrder({ ...newOrder, quantity: e.target.value })} placeholder="0" />
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <label>Priority</label>
+                                    <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Priority</label>
                                     <select value={newOrder.priority} onChange={e => setNewOrder({ ...newOrder, priority: e.target.value })}>
                                         <option value="Low">Low</option>
                                         <option value="Medium">Medium</option>
@@ -187,13 +186,13 @@ export default function KanbanBoard() {
                                 </div>
                             </div>
                             <div>
-                                <label>Work Station</label>
+                                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', display: 'block' }}>Work Station</label>
                                 <input required value={newOrder.workStation} onChange={e => setNewOrder({ ...newOrder, workStation: e.target.value })} placeholder="e.g. Welding, Assembly" />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                                <button type="submit" className="btn" style={{ flex: 1 }}>Create Order</button>
-                                <button type="button" className="btn-secondary" style={{ padding: '10px 20px', borderRadius: '8px' }} onClick={() => setShowCreateModal(false)}>Cancel</button>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px', justifyContent: 'flex-end', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                                <button type="button" className="btn" onClick={() => setShowCreateModal(false)}>Cancel</button>
+                                <button type="submit" className="btn btn-primary">Create Order</button>
                             </div>
                         </form>
                     </motion.div>
