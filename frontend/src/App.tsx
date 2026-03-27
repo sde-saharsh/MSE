@@ -1,16 +1,17 @@
+import type { ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Activity, LayoutDashboard, BarChart3, LogOut } from 'lucide-react';
 import Login from './Login';
 import KanbanBoard from './KanbanBoard';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const token = localStorage.getItem('token');
   if (!token) return <Navigate to="/login" replace />;
   return <Layout>{children}</Layout>;
 };
 
-const Layout = ({ children }: { children: JSX.Element }) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   const username = localStorage.getItem('username');
   const role = localStorage.getItem('role');
   const location = useLocation();
